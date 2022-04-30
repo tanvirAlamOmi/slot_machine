@@ -15,6 +15,7 @@ import { ResponseInterceptor } from 'src/common/interceptors/response.intercepto
       provide: APP_INTERCEPTOR,
       useClass: ResponseInterceptor,
     }
-  ]
+  ],
+  exports: [UsersService]
 })
 export class UsersModule {}
