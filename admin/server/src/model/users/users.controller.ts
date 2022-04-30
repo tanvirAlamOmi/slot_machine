@@ -8,12 +8,6 @@ import { ResponseInterceptor } from 'src/common/interceptors/response.intercepto
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
-  @Post()
-  async create(@Body() createUserDto: CreateUserDto) {
-    const result =  await this.usersService.create(createUserDto);
-    return {message: "User created Successfully", result};
-  }
-
   @Get()
   async findAll() {
     const result = await this.usersService.findAll();
