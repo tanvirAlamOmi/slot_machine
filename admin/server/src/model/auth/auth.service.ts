@@ -4,11 +4,15 @@ import { SignupDto } from './dto/signup.dto';
 import { LoginDto } from './dto/login.dto';
 import * as bcrypt from 'bcrypt';
 import { User } from '../users/entities/user.entity';
+import { JwtService } from '@nestjs/jwt';
+import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class AuthService {
   constructor(
-    private usersSerive: UsersService
+    private usersSerive: UsersService,
+    private jwtService: JwtService,
+    private configService: ConfigService
   ){}
 
   async validateUser(loginDto: LoginDto): Promise<User> {
@@ -27,12 +31,43 @@ export class AuthService {
     return user;
   }
 
-  signup(signupDto: SignupDto) {
-    return this.usersSerive.create(signupDto);
+  async getTokens(user: any): Promise<{}> { //should get User type & return token type
+    const payload = {
+        sub: user.id, 
+        info: {
+            name:  user.username,
+            email: user.email
+        }
+    }
+
+    const accessToken = await Promise.all([
+        this.jwtService.signAsync(
+            payload,
+            {
+                secret: this.configService.get<string>('JWT_ACCESS_TOKEN'),
+                expiresIn: '15m',
+            },
+        )
+    ])
+
+    return { 
+        access_token: accessToken
+    }
+
+}
+
+  async signup(signupDto: SignupDto) {
+    const user =  await this.usersSerive.create(signupDto);
+    const token = await this.getTokens(user);
+
+    return token;
   }
   
   async login(loginDto: LoginDto) {
-    return await this.validateUser(loginDto);
+    const user = await this.validateUser(loginDto);
+    const token = await this.getTokens(user);
+
+    return token;
   }
 
 }
