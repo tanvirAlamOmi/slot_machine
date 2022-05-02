@@ -2,11 +2,13 @@ import { Controller, Get, Post, Body, Patch, Param, Delete, HttpCode } from '@ne
 import { AuthService } from './auth.service';
 import { SignupDto } from './dto/signup.dto';
 import { LoginDto } from './dto/login.dto';
+import { Public } from 'src/common/decorators/metadatas/auth';
 
 @Controller('auth')
 export class AuthController {
-  constructor(private readonly authService: AuthService, ) {}
+  constructor(private readonly authService: AuthService ) {}
 
+  @Public()
   @Post('signup')
   async signup(@Body() signupDto: SignupDto) {
     const result = await this.authService.signup(signupDto);
@@ -14,6 +16,7 @@ export class AuthController {
   }
 
   @HttpCode(200)
+  @Public()
   @Post('login')
   async login(@Body() loginDto: LoginDto) {
     const result = await this.authService.login(loginDto);
