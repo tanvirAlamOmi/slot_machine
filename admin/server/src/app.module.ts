@@ -4,10 +4,18 @@ import { AppService } from './app.service';
 import { UsersModule } from './model/users/users.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AuthModule } from './model/auth/auth.module';
+import { APP_GUARD } from '@nestjs/core';
+import { JwtAccessAuthGuard } from './common/guards/auth/jwt';
+import { ConfigModule } from '@nestjs/config';
 
 
 @Module({
-  imports: [UsersModule, AuthModule, 
+  imports: [
+    ConfigModule.forRoot({
+      // cache:true,
+      isGlobal: true,
+    }),
+    UsersModule, AuthModule, 
     TypeOrmModule.forRoot({
       // type: 'mysql',
       type: 'sqlite',
@@ -23,6 +31,11 @@ import { AuthModule } from './model/auth/auth.module';
     })
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [AppService,
+    {
+      provide: APP_GUARD,
+      useClass: JwtAccessAuthGuard,
+    }
+  ],
 })
 export class AppModule {}
