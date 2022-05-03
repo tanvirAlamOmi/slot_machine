@@ -45,7 +45,7 @@ export class AuthService {
             payload,
             {
                 secret: this.configService.get<string>('JWT_ACCESS_TOKEN'),
-                expiresIn: '15m',
+                expiresIn: this.configService.get<string>('JWT_ACCESS_TOKEN_LIFESPAN'),
             },
         )
     ])
