@@ -3,11 +3,13 @@ import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { ResponseInterceptor } from 'src/common/interceptors/response.interceptor';
+import { Public } from 'src/common/decorators/metadatas/auth';
 
 @Controller('users')
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
+  @Public()
   @Get()
   async findAll() {
     const result = await this.usersService.findAll();
