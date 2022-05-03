@@ -22,11 +22,11 @@ import {
       next: CallHandler
     ): Observable<Response<T>> {
       return next.handle().pipe(
-        map((data) => ({
+        map(({message, ...rest}) => ({
           statusCode: context.switchToHttp().getResponse().statusCode,
           reqId: context.switchToHttp().getRequest().reqId,
-          message: data.message || '',
-          data: data.result,
+          message: message || 'Operation successful',
+          data: {...rest},
         }))
       );
     }
