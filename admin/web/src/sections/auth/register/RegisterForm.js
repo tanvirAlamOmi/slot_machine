@@ -1,35 +1,39 @@
 import * as Yup from 'yup';
 import { useState } from 'react';
 import { useFormik, Form, FormikProvider } from 'formik';
-import { useNavigate } from 'react-router-dom';
+// import { useNavigate } from 'react-router-dom';
 // material
 import { Stack, TextField, IconButton, InputAdornment } from '@mui/material';
 import { LoadingButton } from '@mui/lab';
 // component
+import {useDispatch, useSelector} from 'react-redux';
 import Iconify from '../../../components/Iconify';
-
+import {signup} from '../../../redux/features/userSlice'
 // ----------------------------------------------------------------------
 
 export default function RegisterForm() {
-  const navigate = useNavigate();
+  // const navigate = useNavigate();
 
   const [showPassword, setShowPassword] = useState(false);
 
+  const dispatch = useDispatch(); 
+  // const { user, loading } = useSelector((state) => ({...state.user}))
+
   const RegisterSchema = Yup.object().shape({
-    username: Yup.string().min(5, 'Too Short!').max(20, 'Too Long!').required('Username required'),
+    userName: Yup.string().min(5, 'Too Short!').max(20, 'Too Long!').required('Username required'),
     email: Yup.string().email('Email must be a valid email address').required('Email is required'),
     password: Yup.string().required('Password is required'),
   });
 
   const formik = useFormik({
     initialValues: {
-      username: '',
+      userName: '',
       email: '',
       password: '',
     },
     validationSchema: RegisterSchema,
-    onSubmit: () => {
-      navigate('/dashboard', { replace: true });
+    onSubmit: (values) => {
+      dispatch(signup(values))
     },
   });
 
@@ -42,9 +46,9 @@ export default function RegisterForm() {
           <TextField
             fullWidth
             label="Username"
-            {...getFieldProps('username')}
-            error={Boolean(touched.username && errors.username)}
-            helperText={touched.username && errors.username}
+            {...getFieldProps('userName')}
+            error={Boolean(touched.userName && errors.userName)}
+            helperText={touched.userName && errors.userName}
             />
 
           <TextField
