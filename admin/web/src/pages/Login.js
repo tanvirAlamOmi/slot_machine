@@ -63,16 +63,7 @@ export default function Login() {
     <Page title="Login">
       <RootStyle>
         <HeaderStyle>
-          <Logo />
-
-          {smUp && (
-            <Typography variant="body2" sx={{ mt: { md: -2 } }}>
-              Don’t have an account? {''}
-              <Link variant="subtitle2" component={RouterLink} to="/register">
-                Get started
-              </Link>
-            </Typography>
-          )}
+          <Logo /> 
         </HeaderStyle>
 
         {mdUp && (
@@ -85,23 +76,18 @@ export default function Login() {
         )}
 
         <Container maxWidth="sm">
-          <ContentStyle>
-            <Typography variant="h4" gutterBottom>
-              Sign in to Minimal
-            </Typography>
+          <ContentStyle> 
 
             <Typography sx={{ color: 'text.secondary', mb: 5 }}>Enter your details below.</Typography>
 
             <LoginForm />
-
-            {!smUp && (
+ 
               <Typography variant="body2" align="center" sx={{ mt: 3 }}>
                 Don’t have an account?{' '}
                 <Link variant="subtitle2" component={RouterLink} to="/register">
-                  Get started
+                  Register here
                 </Link>
-              </Typography>
-            )}
+              </Typography> 
           </ContentStyle>
         </Container>
       </RootStyle>
