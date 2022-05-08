@@ -8,7 +8,7 @@ import { LoadingButton } from '@mui/lab';
 // component
 import {useDispatch, useSelector} from 'react-redux';
 import Iconify from '../../../components/Iconify';
-import {signup} from '../../../redux/features/userSlice'
+import {signup} from './registerSlice'
 // ----------------------------------------------------------------------
 
 export default function RegisterForm() {

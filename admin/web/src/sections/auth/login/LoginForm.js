@@ -6,7 +6,10 @@ import { useFormik, Form, FormikProvider } from 'formik';
 import { Link, Stack, Checkbox, TextField, IconButton, InputAdornment, FormControlLabel } from '@mui/material';
 import { LoadingButton } from '@mui/lab';
 // component
+import {useDispatch, useSelector} from 'react-redux';
 import Iconify from '../../../components/Iconify';
+import {login} from './loginSlice';
+
 
 // ----------------------------------------------------------------------
 
@@ -14,6 +17,7 @@ export default function LoginForm() {
   const navigate = useNavigate();
 
   const [showPassword, setShowPassword] = useState(false);
+  const dispatch = useDispatch(); 
 
   const LoginSchema = Yup.object().shape({
     email: Yup.string().email('Email must be a valid email address').required('Email is required'),
@@ -24,11 +28,11 @@ export default function LoginForm() {
     initialValues: {
       email: '',
       password: '',
-      remember: true,
+      // remember: true,
     },
     validationSchema: LoginSchema,
     onSubmit: () => {
-      navigate('/dashboard', { replace: true });
+      dispatch(login(values))
     },
   });
 
@@ -73,10 +77,10 @@ export default function LoginForm() {
         </Stack>
 
         <Stack direction="row" alignItems="center" justifyContent="space-between" sx={{ my: 2 }}>
-          <FormControlLabel
+          {/* <FormControlLabel
             control={<Checkbox {...getFieldProps('remember')} checked={values.remember} />}
             label="Remember me"
-          />
+          /> */}
 
           <Link component={RouterLink} variant="subtitle2" to="#" underline="hover">
             Forgot password?
