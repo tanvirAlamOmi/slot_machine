@@ -1,4 +1,4 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { ForbiddenException, Injectable, UnauthorizedException } from '@nestjs/common';
 import { UsersService } from '../users/users.service';
 import { SignupDto } from './dto/signup.dto';
 import { LoginDto } from './dto/login.dto';
@@ -6,6 +6,7 @@ import * as bcrypt from 'bcrypt';
 import { User } from '../users/entities/user.entity';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
+import { response, Response } from 'express';
 
 @Injectable()
 export class AuthService {
@@ -40,34 +41,89 @@ export class AuthService {
         }
     }
 
-    const accessToken = await Promise.all([
+    const [accessToken, refreshToken] = await Promise.all([
         this.jwtService.signAsync(
             payload,
             {
                 secret: this.configService.get<string>('JWT_ACCESS_TOKEN'),
                 expiresIn: this.configService.get<string>('JWT_ACCESS_TOKEN_LIFESPAN'),
             },
+        ),
+        this.jwtService.signAsync(
+            payload,
+            {
+                secret: this.configService.get<string>('JWT_REFRESH_TOKEN'),
+                expiresIn: this.configService.get<string>('JWT_REFRESH_TOKEN_LIFESPAN'),
+            }
         )
     ])
 
     return { 
-        access_token: accessToken
+        accessToken,
+        refreshToken,
     }
 
-}
+  }
+
+  async refreshTokens(userToken: any, res) {
+    const {sub, refreshToken} = userToken;
+    const user = await this.usersSerive.findOne(sub);
+    
+    if (!user || !user.refreshToken){
+      this.clearTokens(res);
+      throw new ForbiddenException();
+    } 
+    
+    const isMatched = await bcrypt.compare(refreshToken, user.refreshToken);
+
+    if( !isMatched){
+
+      this.clearTokens(res);
+      throw new ForbiddenException();
+    } 
+
+    const tokens =  await this.getTokens(user);
+    await this.updateRefreshToken(user['id'], tokens);
+    
+    this.setTokens(res, tokens['accessToken'], tokens['refreshToken'])
+    return tokens;
+  }
+
+  async updateRefreshToken( userId: number, tokens: any) {
+        
+    const refreshToken = tokens ?  await this.usersSerive.bcryptHash(tokens.refreshToken) : null;
+    
+    await this.usersSerive.update(userId, {refreshToken});
+  }
+
+  async setTokens(res: Response, accessToken: String, refreshToken?: String){
+    res.cookie('access-cookie', accessToken, {httpOnly:true,});
+    if (refreshToken) res.cookie('refresh-cookie', refreshToken, {httpOnly:true,});
+  }
+
+  async clearTokens(res: Response){
+    res.cookie('access-cookie', '', {httpOnly:true,});
+    res.cookie('refresh-cookie', '', {httpOnly:true,});
+  }
 
   async signup(signupDto: SignupDto) {
+ 
     const user =  await this.usersSerive.create(signupDto);
-    const token = await this.getTokens(user);
+    const tokens = await this.getTokens(user);
+    await this.updateRefreshToken(user['id'], tokens);
 
-    return token;
+    return tokens;
   }
   
-  async login(loginDto: LoginDto) {
+  async login(loginDto: LoginDto, res) {
     const user = await this.validateUser(loginDto);
-    const token = await this.getTokens(user);
+    
+    const tokens = await this.getTokens(user);
+    
+    await this.updateRefreshToken(user.id, tokens);
+    this.setTokens(res, tokens['accessToken'], tokens['refreshToken'])
 
-    return token;
+    return tokens;
   }
 
 }
