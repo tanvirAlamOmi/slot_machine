@@ -1,16 +1,21 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit'
 import axios from 'axios';
 
-// login.rejected not returung error at redux
-
 export const login = createAsyncThunk("user/login", 
-async(body) => {
-    const res = await axios.post('http://127.0.0.1:5000/auth/login', {
-                email: body.email,
-                password: body.password,
-            })
-console.log(res.data);
-    return res.data;
+async(body, { rejectWithValue }) => {
+    
+    const result = await axios.post('http://127.0.0.1:5000/auth/login', {
+        email: body.email,
+        password: body.password,
+    })
+    .then((res)=>{
+        return res.data
+    })
+    .catch((error)=>{
+        return rejectWithValue(error.response.data);
+    })
+
+    return result;
 
 })
 

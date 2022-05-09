@@ -3,14 +3,21 @@ import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import axios from 'axios';
 
 export const signup = createAsyncThunk("user/signup", 
-async(body) => {
-    const res = await axios.post('http://127.0.0.1:5000/auth/signup', {
-                username: body.userName,
-                email: body.email,
-                password: body.password,
-            })
+async(body, { rejectWithValue }) => {
 
-    return res.data;
+    const result = await axios.post('http://127.0.0.1:5000/auth/signup', {
+        username: body.userName,
+        email: body.email,
+        password: body.password,
+    })
+    .then((res)=>{
+        return res.data
+    })
+    .catch((error)=>{
+        return rejectWithValue(error.response.data);
+
+    })
+    return result;
 
 })
 
