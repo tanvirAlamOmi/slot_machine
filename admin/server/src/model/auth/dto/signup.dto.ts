@@ -15,4 +15,8 @@ export class SignupDto {
     @IsBoolean()
     @IsOptional()
     isActive: boolean;
+    
+    @IsString()
+    @IsOptional()
+    refreshToken: string;
 }
